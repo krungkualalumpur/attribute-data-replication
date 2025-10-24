@@ -28,7 +28,7 @@ def nameToParams(name : str):
 
     return first_char + rest_of_char
 
-def parser():
+def parser() -> str:
     output : str
     attributeTypesDetected : List[AttributeData] = []
 
@@ -54,7 +54,7 @@ local util = {{}}
 
 function util.create{data["UtilName"]}Data({f"{", ".join(f'{nameToParams(v["AttributeKey"])}' for v in attributeTypesDetected)}"}) : {data["UtilName"]}Data
     return {{
-        {f"{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
+{f"\t\t{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
     }}
 end
 
@@ -70,7 +70,7 @@ return util
 """     
     return output
 
-def write(output : str):
+def write(output : str) -> None:
     if OUTPUT_PATH is None: 
         raise ValueError("Invalid Output Path Argument")
 
