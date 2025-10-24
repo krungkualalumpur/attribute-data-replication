@@ -28,7 +28,7 @@ def nameToParams(name : str):
 
     return first_char + rest_of_char
 
-def parser() -> str:
+def parser():
     output : str
     attributeTypesDetected : List[AttributeData] = []
 
@@ -48,36 +48,29 @@ def parser() -> str:
         
         output = f""" 
 --!strict
-type {data["UtilName"]}Data = {{
-    {("""\n\t\t""".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}
-}}
+type {data["UtilName"]}Data = {{\n\t{("\n\t".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}\n}}
 
 local util = {{}}
 
 function util.create{data["UtilName"]}Data({f"{", ".join(f'{nameToParams(v["AttributeKey"])}' for v in attributeTypesDetected)}"}) : {data["UtilName"]}Data
     return {{
-{       f"{("""
-        """.join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
+    \t{f"{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
     }}
 end
 
 function util.set{data["UtilName"]}Data(instance : Instance, data : {data['UtilName']}Data)
-    {"""
-    """.join(f'instance:SetAttribute("{v["AttributeKey"]}", data.{v["AttributeKey"]})' for v in attributeTypesDetected)}
+    {"\n\t".join(f'instance:SetAttribute("{v["AttributeKey"]}", data.{v["AttributeKey"]})' for v in attributeTypesDetected)}
 end
 
 function util.get{data["UtilName"]}Data(instance : Instance) : {data['UtilName']}Data
-    return {{
-        {"""
-        """.join(f'{v['AttributeKey']} = instance:GetAttribute("{v['AttributeKey']}") :: {luaType(v['AttributeValue'])} or {f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else v["AttributeValue"]},' for v in attributeTypesDetected)}
-    }}
+    return {{\n\t\t{"\n\t\t".join(f'{v['AttributeKey']} = instance:GetAttribute("{v['AttributeKey']}") :: {luaType(v['AttributeValue'])} or {f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else v["AttributeValue"]},' for v in attributeTypesDetected)}\n\t}}
 end
 
 return util
-    """     
+"""     
     return output
 
-def write(output : str) -> None:
+def write(output : str):
     if OUTPUT_PATH is None: 
         raise ValueError("Invalid Output Path Argument")
 
