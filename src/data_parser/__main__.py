@@ -49,8 +49,7 @@ def parser() -> str:
         output = f""" 
 --!strict
 type {data["UtilName"]}Data = {{
-    {("""
-        """.join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}
+    {("""\n\t\t""".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}
 }}
 
 local util = {{}}
