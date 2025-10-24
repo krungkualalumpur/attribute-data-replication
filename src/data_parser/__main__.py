@@ -31,24 +31,13 @@ def nameToParams(name : str):
 def parser():
     output : str
     attributeTypesDetected : List[AttributeData] = []
-    # generatedAttributeParams : str
 
     if JSON_PATH is None: 
         raise ValueError("Invalid Input Path Argument")
   
 
     with open(JSON_PATH, "r") as file:
-        data : InputContent = json.load(file)
-        # typeAtLuauStr = "{"
-        # for k,v in data["Data"].items(): 
-        #     luaType = "number" if isinstance(v, (int, float)) else "boolean" if isinstance(v, bool) else "string" if isinstance(v, str) else None
-        #     if luaType is None: 
-        #         raise ValueError(f"Invalid luaType detected: {v}")
-        #     attributeTypesDetected[k] = luaType
-        #     typeAtLuauStr += f"""\n{k} : {luaType}"""
-        # typeAtLuauStr += "\n}"
-
-        # generatedAttributeParams = f""
+        data : InputContent = json.load(file)     
 
         for k,v in data["Data"].items(): 
             attributeData : AttributeData = {
