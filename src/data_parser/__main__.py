@@ -49,14 +49,14 @@ def parser() -> str:
         output = f""" 
 --!strict
 type {data["UtilName"]}Data = {{
-\t{("\n\t".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}
+    {("\n\t".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}
 }}
 
 local util = {{}}
 
 function util.create{data["UtilName"]}Data({f"{", ".join(f'{nameToParams(v["AttributeKey"])}' for v in attributeTypesDetected)}"}) : {data["UtilName"]}Data
     return {{
-{f"\t\t{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
+{       f"{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
     }}
 end
 
@@ -65,9 +65,9 @@ function util.set{data["UtilName"]}Data(instance : Instance, data : {data['UtilN
 end
 
 function util.get{data["UtilName"]}Data(instance : Instance) : {data['UtilName']}Data
-return {{
-\t\t{"\n\t\t".join(f'{v['AttributeKey']} = instance:GetAttribute("{v['AttributeKey']}") :: {luaType(v['AttributeValue'])} or {f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else v["AttributeValue"]},' for v in attributeTypesDetected)}
-\t}}
+    return {{
+        {"\n\t\t".join(f'{v['AttributeKey']} = instance:GetAttribute("{v['AttributeKey']}") :: {luaType(v['AttributeValue'])} or {f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else v["AttributeValue"]},' for v in attributeTypesDetected)}
+    }}
 end
 
 return util
