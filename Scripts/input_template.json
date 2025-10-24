@@ -1,8 +1,6 @@
 {
-    "UtilName" : "Tool",
+    "UtilName" : "Inventory",
     "Data" : {
-        "Strength" : 1,
-        "Health" : 2,
-        "Attribute1" : "Attribute"
+        "FishData" : "{}"
     }
 }
