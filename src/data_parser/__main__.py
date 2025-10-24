@@ -67,7 +67,7 @@ function util.get{data["UtilName"]}Data(instance : Instance) : {data['UtilName']
 end
 
 return util
-"""     
+    """     
     return output
 
 def write(output : str) -> None:
