@@ -1,6 +1,7 @@
 import sys
 import json
 import os
+import re
 from typing import TypedDict, Dict, List, Any, Literal
 
 class InputContent(TypedDict):
@@ -20,7 +21,7 @@ if OUTPUT_PATH is None:
 OUTPUT_DIR = os.path.dirname(OUTPUT_PATH)
 
 def luaType(inst : Any) -> Literal["boolean", "string", "number", "unknown"]:
-    return "number" if isinstance(inst, (int, float)) else "boolean" if isinstance(inst, bool) else "string" if isinstance(inst, str) else "unknown"
+    return "number" if (isinstance(inst, (int, float)) and not isinstance(inst, (bool))) else "boolean" if isinstance(inst, bool) else "string" if isinstance(inst, str) else "unknown"
 
 def nameToParams(name : str):
     first_char = name[0].lower()
@@ -31,6 +32,14 @@ def nameToParams(name : str):
 def parser():
     output : str
     attributeTypesDetected : List[AttributeData] = []
+
+    def isOptional(givenStr : str) -> bool:
+        return True if re.search(r'\?$', givenStr) is not None else False
+    
+    def parseGivenKeyStr(givenStr : str) -> str: 
+        return re.sub(r'\?$', "", givenStr)
+    def getLuauTypeInStr(data : AttributeData) -> str: 
+        return luaType(data["AttributeValue"]) + ("?" if isOptional(data["AttributeKey"]) else "")
 
     if JSON_PATH is None: 
         raise ValueError("Invalid Input Path Argument")
@@ -48,22 +57,22 @@ def parser():
         
         output = f""" 
 --!strict
-type {data["UtilName"]}Data = {{\n\t{("\n\t".join(f"{v['AttributeKey']}: {luaType(v['AttributeValue'])}," for v in attributeTypesDetected))}\n}}
+type {data["UtilName"]}Data = {{\n\t{("\n\t".join(f"{parseGivenKeyStr(v['AttributeKey'])}: {getLuauTypeInStr(data=v)}," for v in attributeTypesDetected))}\n}}
 
 local util = {{}}
 
-function util.create{data["UtilName"]}Data({f"{", ".join(f'{nameToParams(v["AttributeKey"])}' for v in attributeTypesDetected)}"}) : {data["UtilName"]}Data
+function util.create{data["UtilName"]}Data({f"{", ".join(f'{nameToParams(parseGivenKeyStr(v["AttributeKey"]))} : {getLuauTypeInStr(data=v)}' for v in attributeTypesDetected)}"}) : {data["UtilName"]}Data
     return {{
-    \t{f"{("\n\t\t".join(f'{v["AttributeKey"]} = {nameToParams(v["AttributeKey"])},' for v in attributeTypesDetected))}"}
+    \t{f"{("\n\t\t".join(f'{parseGivenKeyStr(v["AttributeKey"])} = {nameToParams(parseGivenKeyStr(v["AttributeKey"]))},' for v in attributeTypesDetected))}"}
     }}
 end
 
 function util.set{data["UtilName"]}Data(instance : Instance, data : {data['UtilName']}Data)
-    {"\n\t".join(f'instance:SetAttribute("{v["AttributeKey"]}", data.{v["AttributeKey"]})' for v in attributeTypesDetected)}
+    {"\n\t".join(f'instance:SetAttribute("{parseGivenKeyStr(v["AttributeKey"])}", data.{parseGivenKeyStr(v["AttributeKey"])})' for v in attributeTypesDetected)}
 end
 
 function util.get{data["UtilName"]}Data(instance : Instance) : {data['UtilName']}Data
-    return {{\n\t\t{"\n\t\t".join(f'{v['AttributeKey']} = instance:GetAttribute("{v['AttributeKey']}") :: {luaType(v['AttributeValue'])}? or {f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else v["AttributeValue"]},' for v in attributeTypesDetected)}\n\t}}
+    return {{\n\t\t{"\n\t\t".join(f'{parseGivenKeyStr(v['AttributeKey'])} = instance:GetAttribute("{parseGivenKeyStr(v['AttributeKey'])}") :: never or {'nil' if isOptional(v["AttributeKey"]) else  f'"{v["AttributeValue"]}"' if luaType(v["AttributeValue"]) == "string" else str(v["AttributeValue"]).lower()},' for v in attributeTypesDetected)}\n\t}}
 end
 
 return util

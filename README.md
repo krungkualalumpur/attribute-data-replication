@@ -15,7 +15,8 @@ The module detects through JSON file, through this template:
     "Data" : {
         "NumberAttributeNameHere" : 1,
         "BooleanAttributeNameHere" : true,
-        "StringAttributeNameHere" : "Attribute"
+        "StringAttributeNameHere" : "Attribute",
+        "OptionalAttribute?" : "IAmAnOptionalStringAttribute"
     }
 }
 
